@@ -306,36 +306,55 @@ app.delete('/inventory/:id', (req, res) => {
 /**
  * @swagger
  * /search:
- *   post:
- *     summary: Пошук пристрою за ID
- *     requestBody:
- *       content:
- *         application/x-www-form-urlencoded:
- *           schema:
- *             type: object
- *             properties:
- *               id:
- *                 type: string
- *               has_photo:
- *                 type: string
- *                 description: Прапорець (on/true) для додавання лінка в опис
- *     responses:
- *       '200':
- *         description: Знайдена річ
- *       '404':
- *         description: Not Found
+ * post:
+ * summary: Пошук пристрою за ID
+ * requestBody:
+ * content:
+ * application/x-www-form-urlencoded:
+ * schema:
+ * type: object
+ * properties:
+ * id:
+ * type: string
+ * has_photo:
+ * type: string
+ * description: Прапорець (on/true)
+ * responses:
+ * 200:
+ * description: Found
+ * 404:
+ * description: Not Found
  */
 app.post('/search', (req, res) => {
-    const { id, has_photo } = req.body;
+    // ДІАГНОСТИКА
+    console.log('--- SEARCH REQUEST ---');
+    console.log('Отримані дані:', req.body);
+
+    const { id } = req.body;
+    
+    // !!! ГОЛОВНЕ ВИПРАВЛЕННЯ !!!
+    // Ми беремо значення або з has_photo, або з includePhoto.
+    // Тепер не важливо, як називається поле в HTML.
+    const rawPhotoParam = req.body.has_photo || req.body.includePhoto;
 
     const item = inventory.find(i => i.id === id);
     if (!item) return res.status(404).send('Not Found');
 
     let result = { ...item };
 
-    if (has_photo === 'on' || has_photo === 'true' || has_photo === true) {
-        const link = item.photo ? `http://${options.host}:${options.port}/inventory/${item.id}/photo` : 'No photo';
-        result.description = `${result.description}. Photo link: ${link}`;
+    // Перевіряємо галочку (враховуємо всі можливі варіанти "так")
+    const showPhoto = rawPhotoParam === 'on' || rawPhotoParam === 'true' || rawPhotoParam === true;
+
+    console.log('Чи показувати фото?', showPhoto);
+
+    if (showPhoto) {
+        const link = item.photo 
+            ? `http://${options.host}:${options.port}/inventory/${item.id}/photo` 
+            : 'Фото не завантажено';
+            
+        result.description = `${result.description}. [Photo: ${link}]`;
+    } else {
+        delete result.photo; 
     }
 
     res.status(200).json(result);
