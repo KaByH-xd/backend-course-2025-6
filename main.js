@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const swaggerJsDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
-
+// const cors = require('cors');
 
 program
   .requiredOption('-h, --host <address>', 'Адреса сервера')
@@ -23,7 +23,7 @@ if (!fs.existsSync(cachePath)) {
 
 
 const app = express();
-
+// app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -37,7 +37,7 @@ const swaggerOptions = {
         },
         servers: [
             {
-                url: `http://${options.host}:${options.port}`,
+                url: `http://localhost:${options.port}`,
                 description: 'Main Server'
             }
         ],
