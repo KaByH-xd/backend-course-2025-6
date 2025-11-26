@@ -19,6 +19,7 @@
   "homepage": "https://github.com/KaByH-xd/backend-course-2025-6#readme",
   "dependencies": {
     "commander": "^14.0.2",
+    "cors": "^2.8.5",
     "express": "^5.1.0",
     "multer": "^2.0.2",
     "superagent": "^10.2.3",
